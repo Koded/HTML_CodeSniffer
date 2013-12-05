@@ -2,13 +2,14 @@ var page = require('webpage').create(),
     system = require('system'),
     address, standard;
 
-if (system.args.length < 3 || system.args.length > 3) {
-    console.log('Usage: phantomjs HTMLCS_Run.js URL standard');
+if (system.args.length < 4 || system.args.length > 4) {
+    console.log('Usage: phantomjs HTMLCS_Run.js URL source-file standard');
     console.log('  available standards: "WCAG2A", "WCAG2AA", "WCAG2AAA"');
     phantom.exit();
 } else {
     address  = system.args[1];
-    standard = system.args[2];
+    sourceFile  = system.args[2];
+    standard = system.args[3];
     page.open(address, function (status) {
         if (status !== 'success') {
             console.log('Unable to load the address!');
@@ -48,13 +49,11 @@ if (system.args.length < 3 || system.args.length > 3) {
                 // the loaded page's context. We can't pass any variable to it.
                 switch (standard) {
                     case 'WCAG2A':
-                        page.evaluate(function() {HTMLCS_RUNNER.run('WCAG2A');});
-                    break;
                     case 'WCAG2AA':
-                        page.evaluate(function() {HTMLCS_RUNNER.run('WCAG2AA');});
-                    break;
                     case 'WCAG2AAA':
-                        page.evaluate(function() {HTMLCS_RUNNER.run('WCAG2AAA');});
+                      page.evaluate(function(sourceFile, standard) {
+                        HTMLCS_RUNNER.run(standard, sourceFile);
+                      }, sourceFile, standard);
                     break;
                     default:
                         console.log('Unknown standard.');
